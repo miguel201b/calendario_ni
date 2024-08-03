@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descargar Calendario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, select, button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Descargar Calendario</h1>
+    <form id="calendarForm">
+        <label for="letter">Letra del Apellido:</label>
+        <input type="text" id="letter" name="letter" required maxlength="1">
+
+        <label for="shift">Turno:</label>
+        <select id="shift" name="shift" required>
+            <option value="Matutino">Matutino</option>
+            <option value="Vespertino">Vespertino</option>
+        </select>
+
+        <button type="submit">Descargar Calendario</button>
+    </form>
+
+    <script>
+        document.getElementById('calendarForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const letter = document.getElementById('letter').value;
+            const shift = document.getElementById('shift').value;
+
+            const url = `http://127.0.0.1:5000/get_calendar?letter=${letter}&shift=${shift}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error); });
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'calendario.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        });
+    </script>
+</body>
+</html>
